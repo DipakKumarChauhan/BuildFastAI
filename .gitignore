@@ -32,3 +32,21 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Frontend (Node/Next)
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.*
+frontend/.yarn/*
+!frontend/.yarn/patches
+!frontend/.yarn/plugins
+!frontend/.yarn/releases
+!frontend/.yarn/versions
+frontend/coverage/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.vercel/
+frontend/.env*
+frontend/*.tsbuildinfo
+frontend/next-env.d.ts
