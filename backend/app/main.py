@@ -18,6 +18,8 @@ except Exception as e:
 ##### Router Imports
 from app.routers import health
 from app.routers import process
+from app.routers import chat
+from app.routers import generate_flashcard
 
 
 setup_logger()
@@ -28,6 +30,8 @@ app = FastAPI(title=settings.APP_NAME)
 # Register routers
 app.include_router(health.router)
 app.include_router(process.router)
+app.include_router(chat.router)
+app.include_router(generate_flashcard.router)
 
 
 @app.on_event("startup")

@@ -1,12 +1,14 @@
 import uuid
 from app.utils.loader import extract_text_from_pdf
 from app.utils.chunker import chunk_text
+from app.utils.loaders import extract_text_from_youtube
 from app.core.llm_client import generate_embedding
 from app.core.pinecone_client import index
 from app.db.models import Document, Chunk
 from sqlalchemy.orm import Session
 
 
+# ############## PDF Ingestion ##############
 def process_pdf(file_path: str, filename: str, db: Session):
 
     # 1. Extract text
@@ -39,7 +41,8 @@ def process_pdf(file_path: str, filename: str, db: Session):
                 "document_id": document.id,
                 "chunk_index": i,
                 "source": "pdf",
-                "title": filename
+                "title": filename,
+                "text": chunk
             }
         })
 
@@ -50,6 +53,59 @@ def process_pdf(file_path: str, filename: str, db: Session):
         ))
 
     # 5. Store vectors
+    index.upsert(vectors=vectors)
+
+    db.commit()
+
+    return document.id
+
+from app.utils.loaders import extract_text_from_youtube
+
+
+# ############## Youtube Ingestion ##############
+
+def process_youtube(url: str, db: Session):
+
+    # 1. Extract transcript text
+    text = extract_text_from_youtube(url)
+
+    # 2. Create document entry
+    document = Document(
+        title=url,
+        source_type="youtube"
+    )
+    db.add(document)
+    db.commit()
+    db.refresh(document)
+
+    # 3. Chunk
+    chunks = chunk_text(text)
+
+    vectors = []
+
+    for i, chunk in enumerate(chunks):
+        vector_id = str(uuid.uuid4())
+
+        embedding = generate_embedding(chunk)
+
+        vectors.append({
+            "id": vector_id,
+            "values": embedding,
+            "metadata": {
+                "document_id": document.id,
+                "chunk_index": i,
+                "source": "youtube",
+                "title": url,
+                "text": chunk
+            }
+        })
+
+        db.add(Chunk(
+            document_id=document.id,
+            pinecone_vector_id=vector_id,
+            text_preview=chunk[:200]
+        ))
+
     index.upsert(vectors=vectors)
 
     db.commit()
