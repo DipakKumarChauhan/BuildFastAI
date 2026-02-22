@@ -29,10 +29,17 @@ setup_logger()
 app = FastAPI(title=settings.APP_NAME)
 
 # CORS Middleware
+# Support environment-based CORS configuration for production
+import os
+allowed_origins_str = os.getenv("ALLOWED_ORIGINS", "*")
+if allowed_origins_str == "*":
+    allowed_origins = ["*"]
+else:
+    allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",")]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten later if needed
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
