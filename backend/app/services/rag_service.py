@@ -36,7 +36,7 @@ def retrieve_context(query: str):
     return contexts, list(sources)
 
 
-def build_prompt(question: str, contexts: list[str],mode: str):
+def build_prompt(question: str, contexts: list[str], mode: str, history: list[dict] = None):
 
     style_instruction = (
         "Give concise exam-focused explanations."
@@ -45,6 +45,13 @@ def build_prompt(question: str, contexts: list[str],mode: str):
     )
 
     context_block = "\n\n".join(contexts)
+    
+    # Format conversation history if available
+    history_block = ""
+    if history and len(history) > 0:
+        history_block = "\n\nPrevious conversation:\n"
+        for msg in history[-5:]:  # Include last 5 messages to manage context window
+            history_block += f"User: {msg['user']}\nAssistant: {msg['assistant']}\n\n"
 
     prompt = f"""
 You are an AI learning assistant.
@@ -54,10 +61,11 @@ You are an AI learning assistant.
 Answer ONLY using the provided context.
 If the answer is not in the context, say you don't know.
 
-Context:
+{history_block}
+Context from documents:
 {context_block}
 
-Question:
+Current Question:
 {question}
 
 Answer:
@@ -79,9 +87,9 @@ def rag_chat(question: str, mode: str):
         "sources": sources
     }
 
-def rag_chat_stream(question: str, mode: str):
+def rag_chat_stream(question: str, mode: str, history: list[dict] = None, session_id: str = None):
 
-    contexts,sources = retrieve_context(question)
-    prompt = build_prompt(question, contexts, mode)
+    contexts, sources = retrieve_context(question)
+    prompt = build_prompt(question, contexts, mode, history=history)
 
     return stream_chat_response(prompt, sources=sources)

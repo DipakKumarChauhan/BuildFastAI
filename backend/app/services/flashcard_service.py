@@ -41,7 +41,7 @@ Context:
 def generate_flashcards(query_hint: str):
 
     # retrieve representative chunks
-    contexts = retrieve_context(query_hint)
+    contexts, _ = retrieve_context(query_hint)
 
     prompt = build_flashcard_prompt(contexts)
 

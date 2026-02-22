@@ -6,7 +6,8 @@ from app.core.config import settings
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 EMBED_MODEL = "models/gemini-embedding-001"
-CHAT_MODEL = "gemini-2.5-flash"
+# CHAT_MODEL = "gemini-2.5-flash"
+CHAT_MODEL = "gemini-2.5-flash-lite"
 
 def generate_embedding(text:str):
     response = genai.embed_content(

@@ -42,7 +42,7 @@ Context:
 
 def generate_quiz(topic: str, quiz_count: int):
 
-    contexts = retrieve_context(topic)
+    contexts, _ = retrieve_context(topic)
 
     prompt = build_quiz_prompt(contexts, quiz_count)
 
