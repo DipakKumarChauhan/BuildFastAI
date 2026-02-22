@@ -21,10 +21,23 @@ from app.routers import process
 from app.routers import chat
 from app.routers import generate_flashcard
 
+# Middeleware
+from fastapi.middleware.cors import CORSMiddleware
 
 setup_logger()
 
 app = FastAPI(title=settings.APP_NAME)
+
+# CORS Middleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # tighten later if needed
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 # Register routers
