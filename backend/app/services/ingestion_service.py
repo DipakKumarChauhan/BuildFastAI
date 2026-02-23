@@ -1,4 +1,5 @@
 import uuid
+import time
 from app.utils.loader import extract_text_from_pdf
 from app.utils.chunker import chunk_text
 from app.utils.loaders import extract_text_from_youtube
@@ -87,6 +88,7 @@ def process_youtube(url: str, db: Session):
         vector_id = str(uuid.uuid4())
 
         embedding = generate_embedding(chunk)
+        time.sleep(0.5)
 
         vectors.append({
             "id": vector_id,

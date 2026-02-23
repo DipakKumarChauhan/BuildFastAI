@@ -1,4 +1,5 @@
-from fastapi import APIRouter, UploadFile, File, Depends
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
+
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.services.ingestion_service import process_pdf
@@ -29,7 +30,18 @@ async def upload_pdf(
 
     return {"document_id": document_id}
 
+# @router.post("/process-video")
+# def process_video(req: VideoRequest, db: Session = Depends(get_db)):
+#     document_id = process_youtube(req.url, db)
+#     return {"document_id": document_id}
+
 @router.post("/process-video")
 def process_video(req: VideoRequest, db: Session = Depends(get_db)):
-    document_id = process_youtube(req.url, db)
-    return {"document_id": document_id}
+    try:
+        document_id = process_youtube(req.url, db)
+        return {"document_id": document_id}
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Video processing failed: {str(e)}"
+        )
