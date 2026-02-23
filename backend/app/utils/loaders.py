@@ -119,11 +119,64 @@ def extract_video_id(url: str) -> str:
 
     return match.group(1)
 
+#####################################
 
+# def extract_text_from_youtube(url: str) -> str:
+#     video_id = extract_video_id(url)
+
+#     # ✅ create temporary directory
+#     with tempfile.TemporaryDirectory() as temp_dir:
+
+#         output_template = os.path.join(
+#             temp_dir,
+#             f"video_{video_id}.%(ext)s"
+#         )
+
+#         # Download subtitles only
+#         subprocess.run([
+#             "yt-dlp",
+#             "--write-auto-subs",
+#             "--sub-lang", "en.*,en",
+#             "--skip-download",
+#             "--sub-format", "vtt",
+#             "-o", output_template,
+#             url
+#         ], check=True)
+
+#         # Find subtitle file inside temp folder
+#         subtitle_files = glob.glob(
+#             os.path.join(temp_dir, "*.vtt")
+#         )
+
+#         if not subtitle_files:
+#             raise Exception("No subtitles available")
+
+#         subtitle_path = subtitle_files[0]
+
+#         text_lines = []
+
+#         with open(subtitle_path, "r", encoding="utf-8") as f:
+#             for line in f:
+#                 line = line.strip()
+
+#                 if (
+#                     not line
+#                     or "-->" in line
+#                     or line.startswith("WEBVTT")
+#                 ):
+#                     continue
+
+#                 text_lines.append(line)
+
+#         # ✅ No manual delete needed!
+#         # TemporaryDirectory auto deletes everything
+
+#         return " ".join(text_lines)
+
+##############################
 def extract_text_from_youtube(url: str) -> str:
     video_id = extract_video_id(url)
 
-    # ✅ create temporary directory
     with tempfile.TemporaryDirectory() as temp_dir:
 
         output_template = os.path.join(
@@ -131,18 +184,40 @@ def extract_text_from_youtube(url: str) -> str:
             f"video_{video_id}.%(ext)s"
         )
 
-        # Download subtitles only
-        subprocess.run([
-            "yt-dlp",
-            "--write-auto-subs",
-            "--sub-lang", "en.*,en",
-            "--skip-download",
-            "--sub-format", "vtt",
-            "-o", output_template,
-            url
-        ], check=True)
+        # ✅ UPDATED yt-dlp COMMAND
+        result = subprocess.run(
+    [
+        "yt-dlp",
 
-        # Find subtitle file inside temp folder
+        # ⭐ MOST IMPORTANT: try multiple clients
+        "--extractor-args",
+        "youtube:player_client=android,web_safari",
+
+        # subtitle options
+        "--write-auto-subs",
+        "--write-subs",
+        "--skip-download",
+        "--sub-format", "vtt",
+
+        # ⭐ improves success on cloud providers
+        "--geo-bypass",
+        "--no-check-certificates",
+
+        # avoid IPv6 issues on Render
+        "--force-ipv4",
+
+        "-o", output_template,
+        url
+    ],
+    capture_output=True,
+    text=True
+)
+
+        if result.returncode != 0:
+            raise Exception(
+                f"Subtitle download failed:\n{result.stderr}"
+            )
+
         subtitle_files = glob.glob(
             os.path.join(temp_dir, "*.vtt")
         )
@@ -166,8 +241,5 @@ def extract_text_from_youtube(url: str) -> str:
                     continue
 
                 text_lines.append(line)
-
-        # ✅ No manual delete needed!
-        # TemporaryDirectory auto deletes everything
 
         return " ".join(text_lines)
