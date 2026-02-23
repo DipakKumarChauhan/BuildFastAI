@@ -90,6 +90,8 @@ ehthumbs.db
 Thumbs.db
 
 # Documentation files (as requested)
+DEPLOYMENT.md
+QUICK_DEPLOY.md
 QUICK_START.md
 TROUBLESHOOTING.md
 frontend/README.md
