@@ -231,21 +231,6 @@ export default function UploadPage() {
     }
   }
 
-  // Test if the video endpoint is reachable
-  async function testVideoEndpoint() {
-    try {
-      console.log(`[Test] Testing ${API}/process-video endpoint...`);
-      const response = await fetch(`${API}/process-video`, {
-        method: "OPTIONS", // Use OPTIONS to test CORS without sending data
-      });
-      console.log(`[Test] OPTIONS response:`, response.status);
-      return true;
-    } catch (err) {
-      console.error(`[Test] Endpoint test failed:`, err);
-      return false;
-    }
-  }
-
   return (
     <div className="space-y-8 animate-fadeIn">
       <div>
