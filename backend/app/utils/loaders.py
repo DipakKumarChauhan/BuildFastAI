@@ -191,7 +191,7 @@ def extract_text_from_youtube(url: str) -> str:
 
         # ⭐ MOST IMPORTANT: try multiple clients
         "--extractor-args",
-        "youtube:player_client=android,web_safari",
+        "youtube:player_client=tv,android",
 
         # subtitle options
         "--write-auto-subs",
